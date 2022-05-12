@@ -1,0 +1,71 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+
+#define N 5
+
+//top指向栈顶元素后一个位置
+typedef struct stack {
+	int top;
+	int stackArr[N];
+}Stack;
+
+void push(Stack* s, int val);
+int pop(Stack* s);
+int peek(Stack* s);
+bool isEmpty(Stack* s);
+
+int main(void) {
+	Stack* s = (Stack*)calloc(1, sizeof(Stack));
+	for (int i = 1; i < 7; i++) {
+		printf("元素%d加入栈\n", i);
+		push(s, i);
+	}
+	printf("\n读取栈顶元素%d\n", peek(s));
+	printf("弹出元素%d\n", pop(s));
+	printf("读取栈顶元素%d\n", peek(s));
+	if (isEmpty(s)) puts("栈为空。");
+	else puts("栈不为空。\n");
+	printf("栈内元素为：");
+	while (!isEmpty(s)) {
+		printf("%2d", pop(s));
+	}
+	puts("");
+	return 0;
+}
+
+//将元素val加入栈
+void push(Stack* s, int val) {
+	if (s->top == N) {
+		printf("Error: Stack is full, faild to push %d.", val);
+		return;
+	}
+	else {
+		s->stackArr[s->top++] = val;
+	}
+}
+//弹出栈顶元素
+int pop(Stack* s) {
+	if (s->top == 0) {
+		printf("Error: Stack is empty, faild to pop.");
+		return INT_MIN;
+	}
+	else {
+		return s->stackArr[--(s->top)];
+	}
+}
+//读取栈顶元素
+int peek(const Stack* s) {
+	if (s->top == 0) {
+		printf("Error: Stack is empty, faild to pop.");
+		return INT_MIN;
+	}
+	else {
+		return s->stackArr[s->top - 1];
+	}
+}
+//判断栈是否为空
+bool isEmpty(const Stack* s) {
+	return s->top == 0;
+}
