@@ -1,0 +1,147 @@
+//查找花色对应的行下标
+int getRaw(char suit) {
+	switch (suit) {
+	case 'c':
+		return 0;	break;
+	case 's':
+		return 1;	break;
+	case 'd':
+		return 2;	break;
+	case 'h':
+		return 3;	break;
+	default:
+		return -1;
+	}
+}
+//查找牌面值对应的列下标
+int getColum(char rank) {
+	switch (rank) {
+	case 'a':
+		return 0;	break;
+	case '2':
+		return 1;	break;
+	case '3':
+		return 2;	break;
+	case '4':
+		return 3;	break;
+	case '5':
+		return 4;	break;
+	case '6':
+		return 5;	break;
+	case '7':
+		return 6;	break;
+	case '8':
+		return 7;	break;
+	case '9':
+		return 8;	break;
+	case 't':
+		return 9;	break;
+	case 'j':
+		return 10;	break;
+	case 'q':
+		return 11;	break;
+	case 'k':
+		return 12;	break;
+	default:
+		return -1;
+	}
+}
+
+//用于qsort的比较函数
+int comp(const void* a, const void* b) {
+	return *(int*)a - *(int*)b;
+}
+
+void printCardType(int arr[][5]) {
+	//判断是否是同花
+	int isFlash = arr[1][0];
+	int curPos = 1;
+	while (curPos < 5 && isFlash == arr[1][curPos]) curPos++;
+	isFlash = curPos == 5 ? 1 : 0;
+	//排序
+	qsort(arr, 5, sizeof(int), comp);
+	//分别表示是否是顺子，四张，是否存在三张，两张的对数，以及前两张牌是否是一对
+	int isStraight = 0, Four = 0, Three = 0, PairsCount = 0, flag = 0;
+	
+	for (int curPos = 1; curPos < 5; curPos++) {
+		//两张牌的差值
+		int dif = arr[0][curPos] - arr[0][curPos - 1];
+		if (dif == 1) isStraight++;
+		//两张牌相同
+		if (dif == 0) {
+			switch (flag + Three + PairsCount) {
+			case 0:
+				PairsCount++; break;
+			case 1://flag=0,Three=0,paicount=1
+				PairsCount++; break;
+			case 3://flag=0,Three=3,paicount=0
+				puts("Full house.");	return;
+			case 6://flag=3,Three=3;
+				puts("Four of a kind."); return;
+			case 4://flag=3,Paicount=1
+				PairsCount--; Three = 3; break;
+			case 5://flag=3,Paicount=2
+				puts("Full house.");	return;
+			}
+			flag = 3;
+		} else flag = 0;
+	}
+	//检查是否是顺子
+	isStraight = isStraight == 4 ? 2 : 0;
+
+	switch (isFlash + isStraight) {
+	case 1:
+		puts("Flush.");	return;
+	case 2:
+		puts("Straight."); return;
+	case 3:
+		puts("Straight Flush."); return;
+	}
+
+	switch (PairsCount + Three) {
+	case 0:
+		puts("High card.");	return;
+	case 1:
+		puts("Pair.");	return;
+	case 2:
+		puts("Two Pairs.");	return;
+	case 3:
+		puts("Three of a kind.");	return;
+	}
+}
+
+void texasPoker(){
+	//allPoker用于指示是否有重复牌
+	int allPoker[4][13] = { 0 };
+	//pokerInHand记录手牌
+	int pokerInHand[2][5] = { 0 };
+	int count = 0;
+	while (count < 5) {
+		char rank,suit;
+		printf("Enter a card:\t");
+		scanf("%c%c", &rank, &suit);
+		//清除改行剩余字符
+		while (getchar() != '\n');
+		if (rank == '0') exit(EXIT_SUCCESS);
+		//获取该张牌的编号
+		int raw = getRaw(suit);	int colum = getColum(rank);
+
+		//输入合法
+		if (raw >= 0 && colum >= 0) {
+			//没有重复牌
+			if (allPoker[raw][colum] == 0) {
+				allPoker[raw][colum] = 1;
+				//将该张牌进行记录
+				pokerInHand[0][count] = colum;
+				pokerInHand[1][count++] = raw;
+			}else puts("Duplicate card; ignored.");	
+		}else puts("Bad card; ignored.");
+	}
+	//查找类型
+	printCardType(pokerInHand);
+	puts("");
+}
+int main(void) {
+	while (1) texasPoker();
+	return 0;
+}
