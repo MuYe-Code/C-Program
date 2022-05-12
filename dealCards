@@ -1,0 +1,28 @@
+void dealCards() {
+	int num;
+	printf("Enter number of cards in hand: ");
+	scanf("%d", &num);
+	printf("Your hand:\t");
+	//随机数种子
+	srand((unsigned)time(0));
+	//分别记录牌面值及花色，其中牌面值10用符号t暂代
+	const char value[13] = { 'k','a','2','3','4','5','6','7','8','9','t','j','q' };
+	const char suit[4]={'c','s','d','h'};
+	//rest数组用于指示对应的牌是否已经发出
+	int rest[4][13] = { 0 };
+	int cardValue, cardSuit;
+	for (int i = 0; i < num; ) {
+		//分别随机牌面值及花色
+		cardValue = rand() % 13;
+		cardSuit = rand() % 4;
+		//检查随机出的牌是否还存在
+		if (rest[cardSuit][cardValue] == 0) {
+			if (cardValue != 10) printf("%c%c\t", value[cardValue], suit[cardSuit]);
+			else printf("10%c\t", suit[cardSuit]);
+			i++;
+			//更新rest
+			rest[cardSuit][cardValue] = 1;
+		}
+	}
+	puts("");
+}
