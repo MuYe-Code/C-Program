@@ -1,0 +1,109 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct node {
+	int val;
+	struct node* prev;
+	struct node* next;
+}Node;
+
+typedef struct list {
+	Node* head;
+	Node* rear;
+	int size;
+	int maxSize;
+}LRUCache;
+
+bool add_item(LRUCache* cache, int item);
+int main(void) {
+	LRUCache* cacheList = (LRUCache*)calloc(1,sizeof(LRUCache));
+	cacheList->maxSize = 4;
+
+	int items[10]={2,3,4,2,3,7,8,2,9,2};
+	puts("cache最大容量为4。");
+	for (int i = 0; i < 10;i++) {
+		printf("添加页面%d，", items[i]);
+		add_item(cacheList, items[i]);
+		printf("当前cache存放的页面为：\t");
+		Node* tmp = cacheList->head;
+		while (tmp != NULL) {
+			printf("%d\t", tmp->val);
+			tmp = tmp->next;
+		}
+		puts("\n");
+	}
+	return 0;
+}
+
+bool add_item(LRUCache* cache, int item) {
+	
+	if (cache == NULL) {
+		printf("Error: the pointer is nullptr.");
+		return false;
+	}
+	printf("size=%d\n", cache->size);
+	//空链表
+	if (cache->size == 0) {
+		Node* newNode = (Node*)calloc(1,sizeof(Node));
+		if (newNode == NULL) {
+			printf("Error: malloc failed in add_item.");
+			return false;
+		}
+		else {
+			newNode->val = item;
+			cache->head = newNode;
+			cache->rear = newNode;
+			cache->size++;
+			return true;
+		}
+	}
+	else {
+		
+		//该结点本就是头结点
+		if (item == cache->head->val) return true;
+
+		//检查该页面原本是否存在
+		Node* ptr = cache->head;
+		while (ptr->next!=NULL) {
+			if (ptr->next->val == item) break;
+			else ptr = ptr->next;
+		}
+		//原本存在该页面
+		if (ptr->next != NULL) {
+			//将原结点从链表取出
+			Node* tmp = ptr->next;
+			ptr->next = tmp->next;
+			if (tmp == cache->rear) {
+				cache->rear = ptr;
+			}
+			//将原结点放到链表头
+			tmp->next = cache->head;
+			cache->head = tmp;
+		}
+		//原本不存在该页面
+		else {
+			//若cache已满，移除链表尾结点
+			if (cache->maxSize == cache->size) {
+				Node* tmp = cache->head;
+				while (tmp->next != cache->rear) tmp = tmp->next;
+				cache->rear = tmp;
+				free(tmp->next);
+				tmp->next = NULL;
+				cache->size--;
+			}
+			Node* newNode = (Node*)malloc(sizeof(Node));
+			if (newNode == NULL) {
+				printf("Error: malloc failed in add_item.");
+				return false;
+			} else {
+				newNode->val = item;
+				newNode->next = cache->head;
+				cache->head = newNode;
+				cache->size++;
+			}
+		}
+	}
+	return true;
+}
