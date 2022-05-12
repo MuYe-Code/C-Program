@@ -1,4 +1,4 @@
-#inclue "showCalendar.h"
+#include "showCalender.h"
 //返回1代表是闰年，返回0代表是平年
 int isLeapYear(int year) {
 	if (year % 100 != 0 && year % 4 == 0 || year % 400 == 0)
