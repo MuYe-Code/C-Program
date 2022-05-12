@@ -1,0 +1,101 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+
+typedef struct node_s {
+	int val;
+	struct node_s* next;
+}Node;
+
+typedef struct queue {
+	Node* head;
+	Node* rear;
+}Queue;
+
+
+void push(Queue* q, int val);
+int pop(Queue* q);
+int top(Queue* q);
+bool isEmpty(Queue* q);
+
+//测试链表
+int main(void) {
+	Queue* q = (Queue*)calloc(1, sizeof(Queue));
+	for (int i = 1; i < 5; i++) {
+		printf("元素%d加入队列\n", i);
+		push(q, i);
+	}
+	puts("");
+	printf("读取队头元素%d\n", top(q));
+	printf("弹出队头元素%d\n", pop(q));
+	printf("弹出队头元素%d\n", pop(q));
+	printf("读取队头元素%d\n", top(q));
+
+	if (isEmpty(q)) puts("队列为空。");
+	else puts("队列不为空。\n");
+	printf("队列内元素为：");
+	while (!isEmpty(q)) {
+		printf("%2d", pop(q));
+	}
+	puts("");
+	return 0;
+}
+
+//将元素val加入队列
+void push(Queue* q, int val) {
+	Node* newNode = (Node*)malloc(sizeof(Node));
+	if (newNode == NULL) {
+		printf("Error: malloc failed in push.");
+		return;
+	}
+	else {
+		//初始化新结点
+		newNode->val = val;
+		newNode->next = NULL;
+		//若队列尾空，则需要修改头结点指针
+		if (isEmpty(q)) {
+			q->head = newNode;
+		}else q->rear->next = newNode;
+		//将队尾指针指向新结点
+		q->rear = newNode;
+	}
+}
+//弹出队头元素
+int pop(Queue* q) {
+	if (isEmpty(q)) {
+		printf("Error: Queue is empty, faild to pop.");
+		return INT_MIN;
+	}
+	else {
+		//tmp暂存需要返回的值
+		int tmp = q->head->val;
+		//如果只有一个结点，则需要修改头尾指针
+		if (q->head->next == NULL) {
+			free(q->head);
+			q->head = NULL;
+			q->rear = NULL;
+		}
+		//一般情况
+		else {
+			Node* delNode = q->head;
+			q->head = delNode->next;
+			free(delNode);
+		}
+		return tmp;
+	}
+}
+//获取队头元素
+int top(Queue* q) {
+	if (isEmpty(q)) {
+		printf("Error: Queue is empty, faild to get the top element.");
+		return INT_MIN;
+	}
+	else {
+		return q->head->val;
+	}
+}
+//判断队列是否为空
+bool isEmpty(Queue* q) {
+	return q->head == NULL;
+}
