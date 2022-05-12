@@ -1,0 +1,38 @@
+/*
+回型填充数组: 输入一个整数 n (n <= 10)，构造一个 n*n 方阵，
+方阵数值从1开始递增，按照“右 下 左 上”的方式循环向内填充。
+*/
+void createHelicalArray(int arr[10][10], int n) {
+	int maxlen = n * n;
+	//分别对应右，下，左，上，三个元素分别是行操作，列操作，边界
+	int direction[4][3] = { {0,1,n},{1,0,n},{0,-1,-1},{-1,0,0} };
+	int direc = 0;
+	int curRaw = 0, curCol = 0;
+	for (int i = 1; i <= maxlen; i++) {
+		//当前元素赋值
+		arr[curRaw][curCol] = i;
+		curRaw += direction[direc][0];
+		curCol += direction[direc][1];
+
+		//行溢出，direc&1 == 1表明正在增减行数，不必检查是否列溢出
+		if ((direc & 1) == 1 && curRaw == direction[direc][2]) {
+			//回退行操作
+			curRaw -= direction[direc][0];
+			//更新边界
+			direction[direc][2] -= direction[direc][0];
+			direc = (direc + 1) % 4;
+			//进行列操作，使指针位于下一个位置
+			curCol += direction[direc][1];
+		}
+		//列溢出
+		if ((direc & 1) == 0 && curCol == direction[direc][2]) {
+			//回退列操作
+			curCol -= direction[direc][1];
+			//更新边界
+			direction[direc][2] -= direction[direc][1];
+			direc = (direc + 1) % 4;
+			//进行列操作，使指针位于下一个位置
+			curRaw += direction[direc][0];
+		}
+	}
+}
