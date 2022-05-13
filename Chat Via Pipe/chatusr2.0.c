@@ -14,23 +14,17 @@ int main(int argc, char* argv[]){
 
     int chat2=open(argv[2],O_RDONLY);
     ERROR_CHECK(chat2,-1,"open chat2");
-    puts("Connection with USR1 established.");
+    puts("Connectin established.");
     
     fd_set readfds;
     int retVal;
-    struct timeval timeout={60,0};
-    struct tm *tmbuf;
 
     while(1){
         FD_ZERO(&readfds);
         FD_SET(STDIN_FILENO, &readfds);
         FD_SET(chat2, &readfds);
-        retVal = select(chat2+1,&readfds,NULL,NULL,&timeout);
+        retVal = select(chat2+1,&readfds,NULL,NULL,NULL);
         ERROR_CHECK(retVal,-1,"select");
-        if(timeout.tv_sec==0){
-            puts("Time out, USR2 breaks connection.");
-            break;
-        }
         //check stdin
         if(FD_ISSET(STDIN_FILENO,&readfds)){
             memset(buf,0,BUFLEN);
@@ -43,23 +37,10 @@ int main(int argc, char* argv[]){
         //check chat2
         if(FD_ISSET(chat2,&readfds)){
             memset(buf,0,BUFLEN);
-            //reset timeout
-            timeout.tv_sec=60;
-            timeout.tv_usec=0;
-
             retVal = read(chat2,buf,BUFLEN);
             ERROR_CHECK(retVal,-1,"read");
-            if(retVal==0){
-                puts("USR1 breaks connection.");
-                break;
-            }
-
-            gettimeofday(&timeout,NULL);
-            tmbuf=localtime(&timeout.tv_sec);
-            printf("From USR1: %02d/%02d %02d:%02d:%02d\n",tmbuf->tm_mon,tmbuf->tm_mday,
-                                            tmbuf->tm_hour,tmbuf->tm_min,tmbuf->tm_sec);
-            puts(buf);
-
+            if(retVal==0) break;
+            printf("From USR1: \n%s\n", buf);
         }
     }
 
